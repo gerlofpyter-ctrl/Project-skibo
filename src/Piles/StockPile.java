@@ -74,7 +74,7 @@ public class StockPile implements Pile {
             if (c.isWild()) {
                 totalPoints += 15;
             } else {
-                totalPoints += c.getValue();
+                totalPoints += c.value();
             }
         }
         return totalPoints;
@@ -86,5 +86,18 @@ public class StockPile implements Pile {
             return "Stock Pile is empty";
         }
         return cards.size() + " cards in Stock Pile, " + cards.peek().toString() + " on top";
+    }
+
+    public int getTopValue() {
+        return cards.peek().value();
+    }
+
+    public StockPile copy() {
+        StockPile newPile = new StockPile();
+        // Stack is a Vector, so we can iterate in order
+        for (Card c : this.cards) {
+            newPile.add(c);
+        }
+        return newPile;
     }
 }

@@ -42,13 +42,12 @@ public class DiscardPile implements Pile {
     }
 
     /**
-     * Removes the top card from the discard pile.
-     * Only call if the pile is not empty.
+     * Removes and returns the top card from the discard pile.
+     * @return the top card or null if it's empty
      */
-    public boolean remove() {
-        if (isEmpty()) return false;
-        cards.removeLast();
-        return true;
+    public Card remove() {
+        if (isEmpty()) return null;
+        return cards.removeLast();
     }
 
     /**
@@ -80,5 +79,13 @@ public class DiscardPile implements Pile {
     @Override
     public String toString() {
         return cards.toString();
+    }
+
+    public DiscardPile copy() {
+        DiscardPile newPile = new DiscardPile();
+        for (Card c : this.cards) {
+            newPile.add(c);
+        }
+        return newPile;
     }
 }

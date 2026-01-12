@@ -2,30 +2,33 @@ package Piles;
 
 import Elements.Card;
 
+import java.util.ArrayList;
 import java.util.Collections;
-
 import java.util.Stack;
 import java.util.List;
 
 public class DrawPile {
-    private Stack<Card> cards;
+    private List<Card> cards;
+    private List<Card> discardBin; //stores cards from complete building pile
 
     public DrawPile(){
-        this.cards = new Stack<>();
+        this.cards = new ArrayList<>();
+        this.discardBin = new ArrayList<>();
         initializeDeck();
+        shuffle();
     }
 
     private void initializeDeck() {
         // cards 1-12, each card exists 12 times
         for (int value = 1; value <= 12; value++) {
             for (int i = 0; i < 12; i++) {
-                cards.push(new Card(value));
+                cards.add(new Card(value));
             }
         }
 
         // 18 wild cards. Gives the skibo-wildcard the value 0
         for (int i = 0; i < 18; i++) {
-            cards.push(new Card(0));
+            cards.add(new Card(0));
         }
     }
 
@@ -37,22 +40,45 @@ public class DrawPile {
     // draws upmost card
     public Card draw() {
         if (cards.isEmpty()) {
-            throw new IllegalStateException("Draw pile is empty");
+            if (discardBin.isEmpty()) {
+                throw new IllegalStateException("No cards left in the entire game");
+            }
+            refillFromDiscardBin();
         }
-        return cards.pop();
+        return cards.remove(cards.size() - 1);
     }
 
-    public boolean isEmpty() {
-        return cards.isEmpty();
+    /**
+     * When a Building Pile reaches 12, its cards are sent here.
+     */
+    public void addCardsToDiscardBin(List<Card> completedPileCards) {
+        discardBin.addAll(completedPileCards);
+    }
+
+    private void refillFromDiscardBin() {
+        System.out.println("Draw pile empty. Refilling and shuffling from completed cards...");
+        cards.addAll(discardBin);
+        discardBin.clear();
+        shuffle();
     }
 
     public int size() {
         return cards.size();
     }
 
-    // if pile of 12 is completed, they are added to the deck and reshuffled
-    public void addCards(List<Card> completedPileCards) {
-        cards.addAll(completedPileCards);
-        shuffle();
+    /**
+     * The DrawPile is only empty if both the current cards
+     * AND the discard bin (waiting to be reshuffled) are empty.
+     */
+    public boolean isEmpty() {
+        return cards.isEmpty() && discardBin.isEmpty();
+    }
+
+    public DrawPile copy() {
+        DrawPile copy = new DrawPile();
+        copy.cards = new Stack<>();
+        copy.cards.addAll(this.cards);
+        copy.discardBin = new ArrayList<>(this.discardBin);
+        return copy;
     }
 }

@@ -2,17 +2,16 @@ package Piles;
 
 import Elements.Card;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class BuildingPile implements Pile {
-    private final LinkedList<Card> cards;
+    private final Deque<Card> cards;
 
     // A building pile can grow up to 12. After that, it will be added back to draw pile
     public static final int MAX = 12;
 
     public BuildingPile() {
-        this.cards = new LinkedList<>();
+        this.cards = new ArrayDeque<>();
     }
 
     /**
@@ -23,13 +22,20 @@ public class BuildingPile implements Pile {
      */
     @Override
     public boolean add(Card card) {
-        int nextValue = cards.size() + 1;
-
-        if (card.isWild() || card.getValue() == nextValue) {
-            cards.add(card);
+        if (canPlace(card)) {
+            cards.addLast(card);
             return true;
         }
         return false;
+    }
+
+    /**
+     * Logic check: Can this card be played here?
+     */
+    public boolean canPlace(Card card) {
+        if (isFull()) return false;
+        int nextValueNeeded = cards.size() + 1;
+        return card.isWild() || card.value() == nextValueNeeded;
     }
 
     /**
@@ -37,10 +43,8 @@ public class BuildingPile implements Pile {
      */
     @Override
     public Card get() throws NullPileException {
-        if (isEmpty()) {
-            throw new NullPileException("Building pile is empty");
-        }
-        return cards.getLast();
+        if (isEmpty()) throw new NullPileException("Building pile is empty");
+        return cards.peekLast();
     }
 
     @Override
@@ -75,6 +79,27 @@ public class BuildingPile implements Pile {
 
     @Override
     public String toString() {
-        return "BuildingPile: " + cards.toString();
+        return "BuildingPile: " + cards;
     }
+
+    public boolean addCheck(Card card) {
+        int nextValue = cards.size() + 1;
+        return card.isWild() || card.value() == nextValue;
+    }
+
+    public boolean addCheck2 (Card card) {
+        int nextValue = cards.size() + 2;
+        return card.isWild() || card.value() == nextValue;
+    }
+
+    public BuildingPile copy() {
+        BuildingPile newPile = new BuildingPile();
+        // Use the existing Deque to populate the new one
+        for (Card c : this.cards) {
+            newPile.add(c);
+        }
+        return newPile;
+    }
+
+
 }
